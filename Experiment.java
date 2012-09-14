@@ -7,6 +7,51 @@ import org.lwjgl.opengl.GL11;
 
 class Experiment {
 
+
+    // time when last frame was called
+    private long lastFrame;
+    private int fps;
+    private int lastfps;
+
+    public Experiment() {
+        lastFrame = 0;
+        fps = 0;
+        lastfps = 0;
+    }
+    /**
+     * get time elapsed in game in milliseconds
+     *
+     * @return time elapsed since game started
+     */
+    public long getTime() {
+        return Sys.getTime();
+    }
+
+    /**
+     * get the time in ms since the last frame was called
+     * @param return get time since the last frame was called in ms
+     */
+    public int getDelta() {
+        long time = getTime();
+        int delta = (int) (time - lastFrame);
+        lastFrame = time;
+
+        return delta;
+
+    }
+
+    /**
+     * set the title to show game fps
+     *
+     */
+    public void displayfps() {
+        if ((int)getTime() - lastfps > 1000) {
+            Display.setTitle("fps: " + fps );
+            fps = 0;
+            lastfps += 1000;
+        }
+        fps++;
+    }
     /**
      * Set the display mode to be used
      *
@@ -68,9 +113,15 @@ class Experiment {
             System.out.println("Unable to setup mode "+width+"x"+height+" fullscreen="+fullscreen + e);
         }
     }
+    public void update(int delta) {
+
+        displayfps();
+    }
 
     public void run() {
         setDisplayMode(800, 600, false);
+
+        // display fps in titlebar
         try {
             Display.create();
         } catch(LWJGLException exception) {
@@ -78,14 +129,26 @@ class Experiment {
             System.exit(0);
         }
 
-        // opengl init
+
+        // opengl init will go here eventually
+
+        //called once to init the frame timers
+        getDelta();
+        lastfps = (int)getTime();
         while(true) {
 
             if (Display.isCloseRequested())
                 break;
 
+
+            // update the game with delta time
+            int delta = getDelta();
+            update(delta);
+
             //render opengl
             Display.update();
+            //set framerate
+            Display.sync(60);
 
         }
 
