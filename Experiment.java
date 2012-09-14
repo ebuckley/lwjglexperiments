@@ -27,29 +27,30 @@ class Experiment {
             DisplayMode targetDisplayMode = null;
 
             if (fullscreen) {
-            DisplayMode[] modes = Display.getAvailableDisplayModes();
-            int freq = 0;
+                DisplayMode[] modes = Display.getAvailableDisplayModes();
+                int freq = 0;
 
-            for (int i=0;i<modes.length;i++) {
-                DisplayMode current = modes[i];
+                for (int i=0;i<modes.length;i++) {
+                    DisplayMode current = modes[i];
 
-            if ((current.getWidth() == width) && (current.getHeight() == height)) {
-                if ((targetDisplayMode == null) || (current.getFrequency() >= freq)) {
-                    if ((targetDisplayMode == null) || (current.getBitsPerPixel() > targetDisplayMode.getBitsPerPixel())) {
-                    targetDisplayMode = current;
-                    freq = targetDisplayMode.getFrequency();
+                    System.out.println(current.getWidth() + ", " + current.getHeight());
+                    if ((current.getWidth() == width) && (current.getHeight() == height)) {
+                        if ((targetDisplayMode == null) || (current.getFrequency() >= freq)) {
+                            if ((targetDisplayMode == null) || (current.getBitsPerPixel() > targetDisplayMode.getBitsPerPixel())) {
+                            targetDisplayMode = current;
+                            freq = targetDisplayMode.getFrequency();
+                                    }
+                                }
+
+                        // if we've found a match for bpp and frequence against the
+                        // original display mode then it's probably best to go for this one
+                        // since it's most likely compatible with the monitor
+                        if ((current.getBitsPerPixel() == Display.getDesktopDisplayMode().getBitsPerPixel()) &&
+                                    (current.getFrequency() == Display.getDesktopDisplayMode().getFrequency())) {
+                                        targetDisplayMode = current;
+                                        break;
+                                }
                             }
-                        }
-
-                // if we've found a match for bpp and frequence against the
-                // original display mode then it's probably best to go for this one
-                // since it's most likely compatible with the monitor
-                if ((current.getBitsPerPixel() == Display.getDesktopDisplayMode().getBitsPerPixel()) &&
-                            (current.getFrequency() == Display.getDesktopDisplayMode().getFrequency())) {
-                                targetDisplayMode = current;
-                                break;
-                        }
-                    }
                 }
             } else {
                 targetDisplayMode = new DisplayMode(width,height);
@@ -69,10 +70,34 @@ class Experiment {
     }
 
     public void run() {
-        setDisplayMode(800,600, true);
+        setDisplayMode(800, 600, false);
+        try {
+            Display.create();
+        } catch(LWJGLException exception) {
+            System.out.println(exception);
+            System.exit(0);
+        }
+
+        // opengl init
+        while(true) {
+
+            if (Display.isCloseRequested())
+                break;
+
+            //render opengl
+            Display.update();
+
+        }
+
+        Display.destroy();
+
     }
     public static void main (String [] args)
     {
+        System.out.println("starting experiment");
         Experiment doStuff = new Experiment();
+        doStuff.run();
+        System.out.println("finished experiment");
+
     }
 }

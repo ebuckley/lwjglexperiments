@@ -1,1 +1,1 @@
-java -cp .;lwjgl\jar\*; -Djava.library.path=lwjgl\native\windows class\Experiment
+java -cp ;class;lwjgl\jar\*; -Djava.library.path=lwjgl\native\windows Experiment
